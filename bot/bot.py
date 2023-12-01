@@ -120,7 +120,6 @@ def grequest_if_different(text, status, paused):
         text=check_for_censors(text)
     if text != last_line:
         print(status)
-        print(text)
         send_grequest(text, paused)
         last_line = text
 
