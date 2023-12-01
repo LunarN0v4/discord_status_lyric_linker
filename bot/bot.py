@@ -48,8 +48,12 @@ if USE_CENSOR_LIST == "TRUE":
 
 SCOPE = "user-read-currently-playing"
 
-LYRIC_UPDATE_RATE_PER_SECOND = 10  # Rate at which the program updates the number of milliseconds passed to change lyrics.
-SECONDS_TO_SPOTIFY_RESYNC = 10  # Rate at which Spotify is polled for currently playing song and time. Low numbers will be more consistent but may result in ratelimiting.
+LYRIC_UPDATE_RATE_PER_SECOND = int(os.environ.get("LYRIC_UPDATE_RATE_PER_SECOND"))
+if LYRIC_UPDATE_RATE_PER_SECOND == None:
+    LYRIC_UPDATE_RATE_PER_SECOND = 10  # Rate at which the program updates the number of milliseconds passed to change lyrics.
+SECONDS_TO_SPOTIFY_RESYNC = int(os.environ.get("SECONDS_TO_SPOTIFY_RESYNC"))
+if SECONDS_TO_SPOTIFY_RESYNC == None:
+    SECONDS_TO_SPOTIFY_RESYNC = 10  # Rate at which Spotify is polled for currently playing song and time. Low numbers will be more consistent but may result in ratelimiting.
 
 TIMER = fpstimer.FPSTimer(LYRIC_UPDATE_RATE_PER_SECOND)
 
