@@ -60,7 +60,6 @@ if SECONDS_TO_SPOTIFY_RESYNC == None:
 TIMER = fpstimer.FPSTimer(LYRIC_UPDATE_RATE_PER_SECOND)
 
 last_line = ""
-current_pronouns = ""
 
 
 class StatusScreen:  # working on, currently dead code
@@ -529,6 +528,7 @@ def get_spotipy():
 
 if __name__ == "__main__":
     song_last_played = ""
+    current_pronouns = ""
     line_last_played = ""
     lyrics = {}
     rlyrics = {}
