@@ -113,6 +113,10 @@ def create_env_file(creds: list):
             file.write(f"SPOTIFY_FIRST = TRUE\n")
         file.write(f"SPOTIFY_LYRIC_PROVIDER = {creds[12]}\n")
         file.write(f"APPLE_LYRIC_PROVIDER = {creds[13]}\n")
+        if creds[14] is False:
+            file.write(f"USE_CENSOR_LIST = FALSE")
+        else:
+            file.write(f"USE_CENSOR_LIST = TRUE")
 
 
 def get_credentials():
@@ -176,6 +180,11 @@ def get_credentials():
         apple_lyric_provider = input("Enter the full URL (no trailing /): ")
     else:
         apple_lyric_provider = "https://beautiful-lyrics.socalifornian.live"
+    use_censor_list = input("Do you want to use a censor list (censor.txt)? (y/n): ")
+    if use_censor_list.lower() == "y":
+        use_censor_list = True
+    else:
+        use_censor_list = False
     locally_stored = input("Do you want to store lyrics locally once the song is listened to? This is recommended for speed and lack of API spamming (stops ratelimiting being so likely) (y/n): ")
     locally_stored = locally_stored.lower() == "y"
     spotify_first = input("Do you want to use Spotify's lyrics first? (If you select no, it will use Apple Musics lyrics first, and Spotify's secondarily) (y/n): ")
@@ -197,6 +206,7 @@ def get_credentials():
         spotify_first,
         spotify_lyric_provider,
         apple_lyric_provider,
+        use_censor_list,
     ]
 
 

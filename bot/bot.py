@@ -31,6 +31,7 @@ if APPLE_LYRIC_PROVIDER == None:
     APPLE_LYRIC_PROVIDER = "https://beautiful-lyrics.socalifornian.live"
 if SPOTIFY_LYRIC_PROVIDER == None:
     SPOTIFY_LYRIC_PROVIDER = "https://spotify-lyric-api-984e7b4face0.herokuapp.com"
+USE_CENSOR_LIST = os.environ.get("USE_CENSOR_LIST")
 
 if NITRO == "TRUE":
     CUSTOM_STATUS_EMOJI_NAME = os.environ.get("STATUS_EMOJI_NAME")
@@ -40,6 +41,10 @@ if NITRO == "TRUE":
 else:
     CUSTOM_STATUS_EMOJI_NAME = os.environ.get("STATUS_EMOJI_NAME")
     CUSTOM_STATUS_EMOJI_IDLE_NAME = os.environ.get("STATUS_EMOJI_IDLE_NAME")
+
+if USE_CENSOR_LIST == "TRUE":
+    with open('censor.txt', "r") as f:
+        CENSOR_LIST_DATA = f.readlines()
 
 SCOPE = "user-read-currently-playing"
 
@@ -71,9 +76,28 @@ def PrintException():
     line = linecache.getline(filename, lineno, f.f_globals)
     print(f'EXCEPTION IN ({filename}, LINE {lineno} "{line.strip()}"): {exc_obj}')
 
+def check_for_censors(text):
+    data = text.split(' ')
+    newdata=[]
+    print(data)
+    for word in data:
+        CENSORED=False
+        for censored_word in CENSOR_LIST_DATA:
+            if word.lower() in censored_word.lower() or word.lower() == censored_word.lower():
+                word=list(word)
+                fixed_word=f"{word[0]}"
+                for x in len(word):
+                    fixed_word+="*"
+                CENSORED=True
+                newdata.append(fixed_word)
+            if CENSORED == False:
+                newdata.append(word)
+    return " ".join(newdata)
 
 def grequest_if_different(text, status, paused):
     global last_line
+    if USE_CENSOR_LIST == "TRUE":
+        text=check_for_censors(text)
     if text != last_line:
         print(status)
         send_grequest(text, paused)
@@ -82,6 +106,8 @@ def grequest_if_different(text, status, paused):
 
 def request_if_different(text, status, paused):
     global last_line
+    if USE_CENSOR_LIST == "TRUE":
+        text=check_for_censors(text)
     if text != last_line:
         print(status)
         send_request(text, paused)
@@ -204,7 +230,9 @@ def main(last_played_song, last_played_line, song, lyrics, rlyrics):
                 ):
                     TIMER.sleep()
                     return song_name, last_played_line
-                grequest_if_different(CUSTOM_STATUS, "DISCORD: NO SYNCED LYRICS", False)
+                grequest_if_different(
+                    CUSTOM_STATUS, "DISCORD: NO SYNCED LYRICS", False
+                )
                 last_played_line = "NO LYRICS"
                 TIMER.sleep()
                 return song_name, last_played_line
