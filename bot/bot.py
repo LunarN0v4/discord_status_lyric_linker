@@ -25,6 +25,12 @@ CUSTOM_IDLE_STATUS = os.environ.get("STATUS_IDLE")
 LOCALLY_STORED = os.environ.get("LOCALLY_STORED")
 NITRO = os.environ.get("NITRO")
 SPOTIFY_FIRST = os.environ.get("SPOTIFY_FIRST")
+SPOTIFY_LYRIC_PROVIDER = os.environ.get("SPOTIFY_LYRIC_PROVIDER")
+APPLE_LYRIC_PROVIDER = os.environ.get("APPLE_LYRIC_PROVIDER")
+if APPLE_LYRIC_PROVIDER == None:
+    APPLE_LYRIC_PROVIDER = "https://beautiful-lyrics.socalifornian.live"
+if SPOTIFY_LYRIC_PROVIDER == None:
+    SPOTIFY_LYRIC_PROVIDER = "https://spotify-lyric-api-984e7b4face0.herokuapp.com"
 
 if NITRO == "TRUE":
     CUSTOM_STATUS_EMOJI_NAME = os.environ.get("STATUS_EMOJI_NAME")
@@ -304,7 +310,7 @@ def get_lyrics(track_id):
         elif SPOTIFY_FIRST == "FALSE":
             print("FETCHING LYRICS, NEW SONG (RESERVED / SPOTIFY)")
         data = requests.get(
-            f"https://spotify-lyric-api.herokuapp.com/?trackid={track_id}", timeout=10
+            f"{SPOTIFY_LYRIC_PROVIDER}/?trackid={track_id}", timeout=10
         ).json()
         if LOCALLY_STORED == "TRUE":
             with open(path, "w") as f:
@@ -326,7 +332,7 @@ def get_reserve_lyrics(isrc):
         elif SPOTIFY_FIRST == "FALSE":
             print("FETCHING LYRICS, NEW SONG (APPLE MUSIC)")
         r = requests.get(
-            f"https://beautiful-lyrics.socalifornian.live/lyrics/{isrc}", timeout=10
+            f"{APPLE_LYRIC_PROVIDER}/lyrics/{isrc}", timeout=10
         )
         if r.status_code != 200:
             return _extracted_from_get_reserve_lyrics_16(path)

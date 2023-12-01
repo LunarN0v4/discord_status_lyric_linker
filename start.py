@@ -111,6 +111,8 @@ def create_env_file(creds: list):
             file.write(f"SPOTIFY_FIRST = FALSE\n")
         else:
             file.write(f"SPOTIFY_FIRST = TRUE\n")
+        file.write(f"SPOTIFY_LYRIC_PROVIDER = {creds[12]}\n")
+        file.write(f"APPLE_LYRIC_PROVIDER = {creds[13]}\n")
 
 
 def get_credentials():
@@ -164,6 +166,16 @@ def get_credentials():
         nitro = False
         status_emoji_name = ""
         status_emoji_id = ""
+    spotify_lyric_provider = input("Do you want a custom Spotify lyrics provider? (y/n): ")
+    if spotify_lyric_provider.lower() == "y":
+        spotify_lyric_provider = input("Enter the full URL (no trailing /): ")
+    else:
+        spotify_lyric_provider = "https://spotify-lyric-api-984e7b4face0.herokuapp.com"
+    apple_lyric_provider = input("Do you want a custom Apple lyrics provider? (y/n): ")
+    if apple_lyric_provider.lower() == "y":
+        apple_lyric_provider = input("Enter the full URL (no trailing /): ")
+    else:
+        apple_lyric_provider = "https://beautiful-lyrics.socalifornian.live"
     locally_stored = input("Do you want to store lyrics locally once the song is listened to? This is recommended for speed and lack of API spamming (stops ratelimiting being so likely) (y/n): ")
     locally_stored = locally_stored.lower() == "y"
     spotify_first = input("Do you want to use Spotify's lyrics first? (If you select no, it will use Apple Musics lyrics first, and Spotify's secondarily) (y/n): ")
@@ -183,6 +195,8 @@ def get_credentials():
         locally_stored,
         custom_idle_status,
         spotify_first,
+        spotify_lyric_provider,
+        apple_lyric_provider,
     ]
 
 
