@@ -90,21 +90,23 @@ def check_for_censors(text):
             for censored_word in CENSOR_LIST_DATA:
                 if '\n' in censored_word:
                     censored_word = censored_word.replace('\n','')
-                if word.lower() == censored_word.lower():
+                if '\r' in censored_word:
+                    censored_word = censored_word.replace('\r','')
+                if word.lower() == censored_word.lower() and CENSORED is False:
                     splitword=list(word)
                     fixed_word=f"{splitword[0]}"
                     for x in range(len(splitword)):
                         fixed_word+="*"
                     CENSORED=True
                     newdata.append(fixed_word)
-                elif censored_word.lower() in word.lower():
+                elif censored_word.lower() in word.lower() and CENSORED is False:
                     index=word.lower().find(censored_word.lower())
                     fixed_word=list(word)
                     for x in range(len(list(censored_word))-1):
                         fixed_word[index+x+1] = '*'
-                    fixed_word = "".join(fixed_word)
+                    final_word = "".join(fixed_word)
                     CENSORED=True
-                    newdata.append(fixed_word)
+                    newdata.append(final_word)
             if CENSORED == False:
                 newdata.append(word)
         return " ".join(newdata)
@@ -117,6 +119,7 @@ def grequest_if_different(text, status, paused):
         text=check_for_censors(text)
     if text != last_line:
         print(status)
+        print(text)
         send_grequest(text, paused)
         last_line = text
 
