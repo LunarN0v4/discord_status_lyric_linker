@@ -33,6 +33,7 @@ if SPOTIFY_LYRIC_PROVIDER == None:
     SPOTIFY_LYRIC_PROVIDER = "https://spotify-lyric-api-984e7b4face0.herokuapp.com"
 USE_CENSOR_LIST = os.environ.get("USE_CENSOR_LIST")
 USE_PRONOUNS_FOR_SONG_NAME = os.environ.get("USE_PRONOUNS_FOR_SONG_NAME")
+IDLE_PRONOUNS = os.environ.get("IDLE_PRONOUNS")
 
 if NITRO == "TRUE":
     CUSTOM_STATUS_EMOJI_NAME = os.environ.get("STATUS_EMOJI_NAME")
@@ -59,6 +60,7 @@ if SECONDS_TO_SPOTIFY_RESYNC == None:
 TIMER = fpstimer.FPSTimer(LYRIC_UPDATE_RATE_PER_SECOND)
 
 last_line = ""
+current_pronouns = ""
 
 
 class StatusScreen:  # working on, currently dead code
@@ -357,6 +359,10 @@ def on_new_song(sp, last_played):
         print("SPOTIFY: LISTENING REQUEST MADE")
         current_song = sp.current_user_playing_track()
         if current_song is None:
+            if USE_PRONOUNS_FOR_SONG_NAME == "TRUE" and IDLE_PRONOUNS != "FALSE":
+                if current_pronouns != IDLE_PRONOUNS:
+                    current_pronouns = IDLE_PRONOUNS
+                    send_pronouns_request(IDLE_PRONOUNS)
             return False, False, False, False
         isrc = current_song["item"]["external_ids"]["isrc"]
         if isrc == last_played and last_played != "":
@@ -400,7 +406,9 @@ def pronouns_song_setup(artists,songname):
             elif len(songname) > 40 and not ' - ' in songname:
                 final="Listening to Spotify"
                 finished = True
-    send_pronouns_request(final)
+    if current_pronouns != final:
+        current_pronouns = final
+        send_pronouns_request(final)
 
 
 

@@ -123,6 +123,10 @@ def create_env_file(creds: list):
             file.write(f"USE_PRONOUNS_FOR_SONG_NAME = FALSE\n")
         else:
             file.write(f"USE_PRONOUNS_FOR_SONG_NAME = TRUE\n")
+            if creds[18] is False:
+                file.write(f"IDLE_PRONOUNS = FALSE\n")
+            else:
+                file.write(f"IDLE_PRONOUNS = {creds[18]}")
 
 
 def get_credentials():
@@ -196,6 +200,12 @@ def get_credentials():
     spotify_first = spotify_first.lower() == "y"
     use_pronouns_for_song_name = input("Do you want to use the pronouns section on your profile on Discord for the song name/artists? [EXPERIMENTAL: RATE LIMITING EXPECTED] (y/n): ")
     use_pronouns_for_song_name = use_pronouns_for_song_name.lower() == "y"
+    if use_pronouns_for_song_name == "y":
+        idle_pronouns = input("Do you want an idle pronouns for when you are listening to nothing? [EXPERIMENTAL: RATE LIMITING EXPECTED] (y/n): ")
+        if idle_pronouns == "y":
+            idle_pronouns = input("Idle Pronouns: ")
+        else:
+            idle_pronouns = False
 
     return [
         discord_token,
@@ -217,6 +227,7 @@ def get_credentials():
         lyric_update,
         resync_rate,
         use_pronouns_for_song_name,
+        idle_pronouns
     ]
 
 
