@@ -393,7 +393,11 @@ def pronouns_song_setup(artists,songname):
         else:
             if len(artist_list) > 0:
                 artist_list.pop()
-            else:
+            elif len(songname) > 40:
+                songname = songname.split(' (')[0]
+            elif len(songname) > 40 and not ' (' in songname:
+                songname = songname.split(' - ')[0]
+            elif len(songname) > 40 and not ' - ' in songname:
                 final="Listening to Spotify"
                 finished = True
     send_pronouns_request(final)
