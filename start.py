@@ -114,9 +114,11 @@ def create_env_file(creds: list):
         file.write(f"SPOTIFY_LYRIC_PROVIDER = {creds[12]}\n")
         file.write(f"APPLE_LYRIC_PROVIDER = {creds[13]}\n")
         if creds[14] is False:
-            file.write(f"USE_CENSOR_LIST = FALSE")
+            file.write(f"USE_CENSOR_LIST = FALSE\n")
         else:
-            file.write(f"USE_CENSOR_LIST = TRUE")
+            file.write(f"USE_CENSOR_LIST = TRUE\n")
+        file.write(f"LYRIC_UPDATE_RATE_PER_SECOND = {creds[15]}\n")
+        file.write(f"SECONDS_TO_SPOTIFY_RESYNC = {creds[16]}\n")
 
 
 def get_credentials():
@@ -185,6 +187,8 @@ def get_credentials():
         use_censor_list = True
     else:
         use_censor_list = False
+    lyric_update = int(input("How often should we update lyrics? (in seconds, recommend 10) [putting quicker than 5 may results in rate limiting]: "))
+    resync_rate = int(input("How often should we resync with Spotify? (in seconds, recommend 10) [putting quicker than 5 may results in rate limiting]: "))
     locally_stored = input("Do you want to store lyrics locally once the song is listened to? This is recommended for speed and lack of API spamming (stops ratelimiting being so likely) (y/n): ")
     locally_stored = locally_stored.lower() == "y"
     spotify_first = input("Do you want to use Spotify's lyrics first? (If you select no, it will use Apple Musics lyrics first, and Spotify's secondarily) (y/n): ")
@@ -207,6 +211,8 @@ def get_credentials():
         spotify_lyric_provider,
         apple_lyric_provider,
         use_censor_list,
+        lyric_update,
+        resync_rate,
     ]
 
 
