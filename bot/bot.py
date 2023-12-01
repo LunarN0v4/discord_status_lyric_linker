@@ -196,7 +196,7 @@ def send_pronouns_request(text):
             "pronouns": text
         }
         req = requests.patch(
-            url="https://discord.com/api/v9/users/%40me/profile",
+            url="https://discord.com/api/v9/users/@me/profile",
             headers={"authorization": API_TOKEN,"content-type":"application/json","accept":"*/*"},
             json=jsondata,
             timeout=10,
@@ -227,6 +227,7 @@ def status_screen():  # working on, currently dead code
 
 
 def main(last_played_song, last_played_line, song, lyrics, rlyrics):
+    global current_pronouns
     try:
         start = time.time()
 
@@ -358,10 +359,6 @@ def on_new_song(sp, last_played):
         print("SPOTIFY: LISTENING REQUEST MADE")
         current_song = sp.current_user_playing_track()
         if current_song is None:
-            if USE_PRONOUNS_FOR_SONG_NAME == "TRUE" and IDLE_PRONOUNS != "FALSE":
-                if current_pronouns != IDLE_PRONOUNS:
-                    current_pronouns = IDLE_PRONOUNS
-                    send_pronouns_request(IDLE_PRONOUNS)
             return False, False, False, False
         isrc = current_song["item"]["external_ids"]["isrc"]
         if isrc == last_played and last_played != "":
@@ -380,6 +377,7 @@ def on_new_song(sp, last_played):
         PrintException()
 
 def pronouns_song_setup(artists,songname):
+    global current_pronouns
     finished=False
     final=""
     artist_list=[]
@@ -528,8 +526,8 @@ def get_spotipy():
 
 if __name__ == "__main__":
     song_last_played = ""
-    current_pronouns = ""
     line_last_played = ""
+    current_pronouns = ""
     lyrics = {}
     rlyrics = {}
     main_loops = 0
@@ -550,6 +548,10 @@ if __name__ == "__main__":
                     sp, song_last_played
                 )
                 if not song:
+                    if USE_PRONOUNS_FOR_SONG_NAME == "TRUE" and IDLE_PRONOUNS != "FALSE":
+                        if current_pronouns != IDLE_PRONOUNS:
+                            current_pronouns = IDLE_PRONOUNS
+                            send_pronouns_request(IDLE_PRONOUNS)
                     grequest_if_different(
                         CUSTOM_IDLE_STATUS, "SPOTIFY: NOTHING PLAYING", True
                     )
