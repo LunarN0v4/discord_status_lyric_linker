@@ -119,6 +119,10 @@ def create_env_file(creds: list):
             file.write(f"USE_CENSOR_LIST = TRUE\n")
         file.write(f"LYRIC_UPDATE_RATE_PER_SECOND = {creds[15]}\n")
         file.write(f"SECONDS_TO_SPOTIFY_RESYNC = {creds[16]}\n")
+        if creds[17] is False:
+            file.write(f"USE_PRONOUNS_FOR_SONG_NAME = FALSE\n")
+        else:
+            file.write(f"USE_PRONOUNS_FOR_SONG_NAME = TRUE\n")
 
 
 def get_credentials():
@@ -183,16 +187,15 @@ def get_credentials():
     else:
         apple_lyric_provider = "https://beautiful-lyrics.socalifornian.live"
     use_censor_list = input("Do you want to use a censor list (censor.txt)? (y/n): ")
-    if use_censor_list.lower() == "y":
-        use_censor_list = True
-    else:
-        use_censor_list = False
+    use_censor_list = use_censor_list.lower() == "y"
     lyric_update = int(input("How often should we update lyrics? (in seconds, recommend 10) [putting quicker than 5 may results in rate limiting]: "))
     resync_rate = int(input("How often should we resync with Spotify? (in seconds, recommend 10) [putting quicker than 5 may results in rate limiting]: "))
     locally_stored = input("Do you want to store lyrics locally once the song is listened to? This is recommended for speed and lack of API spamming (stops ratelimiting being so likely) (y/n): ")
     locally_stored = locally_stored.lower() == "y"
     spotify_first = input("Do you want to use Spotify's lyrics first? (If you select no, it will use Apple Musics lyrics first, and Spotify's secondarily) (y/n): ")
     spotify_first = spotify_first.lower() == "y"
+    use_pronouns_for_song_name = input("Do you want to use the pronouns section on your profile on Discord for the song name/artists? [EXPERIMENTAL: RATE LIMITING EXPECTED] (y/n): ")
+    use_pronouns_for_song_name = use_pronouns_for_song_name.lower() == "y"
 
     return [
         discord_token,
@@ -213,6 +216,7 @@ def get_credentials():
         use_censor_list,
         lyric_update,
         resync_rate,
+        use_pronouns_for_song_name,
     ]
 
 

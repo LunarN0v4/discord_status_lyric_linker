@@ -32,6 +32,7 @@ if APPLE_LYRIC_PROVIDER == None:
 if SPOTIFY_LYRIC_PROVIDER == None:
     SPOTIFY_LYRIC_PROVIDER = "https://spotify-lyric-api-984e7b4face0.herokuapp.com"
 USE_CENSOR_LIST = os.environ.get("USE_CENSOR_LIST")
+USE_PRONOUNS_FOR_SONG_NAME = os.environ.get("USE_PRONOUNS_FOR_SONG_NAME")
 
 if NITRO == "TRUE":
     CUSTOM_STATUS_EMOJI_NAME = os.environ.get("STATUS_EMOJI_NAME")
@@ -150,6 +151,21 @@ def send_grequest(text, paused):
     )
     grequests.send(req, grequests.Pool(1))
 
+def send_pronouns_grequest(text):
+    try:
+        jsondata = {
+            "pronouns": text
+        }
+        req = grequests.patch(
+            url="https://discord.com/api/v6/users/@me/profile",
+            headers={"authorization": API_TOKEN},
+            json=jsondata,
+            timeout=10,
+        )
+        grequests.send(req, grequests.Pool(1))
+    except:
+        PrintException()
+
 
 def send_request(text, paused):
     jsondata = {
@@ -163,13 +179,26 @@ def send_request(text, paused):
         if paused:
             jsondata["custom_status"]["emoji_id"] = CUSTOM_STATUS_EMOJI_IDLE_ID
             jsondata["custom_status"]["emoji_name"] = CUSTOM_STATUS_EMOJI_IDLE_NAME
-    requests.patch(
+    req = requests.patch(
         url="https://discord.com/api/v6/users/@me/settings",
         headers={"authorization": API_TOKEN},
         json=jsondata,
         timeout=10,
     )
 
+def send_pronouns_request(text):
+    try:
+        jsondata = {
+            "pronouns": text
+        }
+        req = requests.patch(
+            url="https://discord.com/api/v9/users/%40me/profile",
+            headers={"authorization": API_TOKEN,"content-type":"application/json","accept":"*/*"},
+            json=jsondata,
+            timeout=10,
+        )
+    except:
+        PrintException()
 
 def clear():  # working on, currently dead code
     if platform.system() == "Windows":
@@ -321,19 +350,51 @@ def get_next_line(lyrics, current_time, song_length):
 
 
 def on_new_song(sp, last_played):
-    print("SPOTIFY: LISTENING REQUEST MADE")
-    current_song = sp.current_user_playing_track()
-    if current_song is None:
-        return False, False, False, False
-    isrc = current_song["item"]["external_ids"]["isrc"]
-    if isrc == last_played and last_played != "":
-        return current_song, False, False, isrc
-    track_id = current_song["item"]["uri"].split(":")[-1]
-    current_lyrics = get_lyrics(track_id)
-    reserve_lyrics = get_reserve_lyrics(isrc)
-    if SPOTIFY_FIRST == "TRUE":
-        return current_song, current_lyrics, reserve_lyrics, isrc
-    return current_song, reserve_lyrics, current_lyrics, isrc
+    try:
+        print("SPOTIFY: LISTENING REQUEST MADE")
+        current_song = sp.current_user_playing_track()
+        if current_song is None:
+            return False, False, False, False
+        isrc = current_song["item"]["external_ids"]["isrc"]
+        if isrc == last_played and last_played != "":
+            return current_song, False, False, isrc
+        track_id = current_song["item"]["uri"].split(":")[-1]
+        current_lyrics = get_lyrics(track_id)
+        reserve_lyrics = get_reserve_lyrics(isrc)
+        if USE_PRONOUNS_FOR_SONG_NAME == "TRUE":
+            artists = current_song["item"]["artists"]
+            songname = current_song["item"]["name"]
+            pronouns_song_setup(artists,songname)
+        if SPOTIFY_FIRST == "TRUE":
+            return current_song, current_lyrics, reserve_lyrics, isrc
+        return current_song, reserve_lyrics, current_lyrics, isrc
+    except:
+        PrintException()
+
+def pronouns_song_setup(artists,songname):
+    finished=False
+    final=""
+    artist_list=[]
+    for artist in artists:
+        artist_list.append(artist["name"])
+    
+    while finished == False:
+        if len(artist_list) == 0:
+            msg = songname
+        else:
+            artists=", ".join(artist_list)
+            msg = f'{songname} by {artists}'
+        if len(msg) <= 40:
+            final=msg
+            finished=True
+        else:
+            if len(artist_list) > 0:
+                artist_list.pop()
+            else:
+                final="Listening to Spotify"
+                finished = True
+    send_pronouns_request(final)
+
 
 
 def local_check(path, v):
